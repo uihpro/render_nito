@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      #game-board {
+        width: 300px;
+        height: 300px;
+        border: solid 1px black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="game-board"></canvas>
+
+    <script>
+      const canvas = document.getElementById("game-board");
+      const ctx = canvas.getContext("2d");
+
+      // Set canvas dimensions
+      canvas.width = 300;
+      canvas.height = 300;
+
+      // Set snake dimensions
+      let box = 10;
+
+      // Create the snake
+      let snake = [];
+      snake[0] = { x: (canvas.width / 2) - ((canvas.width / 2) % box), y: (canvas.height / 2) - ((canvas.height / 2) % box) };
+
+      // Create the food
+      let food = {
+        x: Math.floor(Math.random() * (canvas.width / box)) * box,
+        y: Math.floor(Math.random() * (canvas.height / box)) * box,
+      };
+
+      // Control the snake
+      let d;
+      
+document.addEventListener("keydown", direction);
+      
+function direction(event) {
+        if (event.keyCode === 37 && d !== "RIGHT") {
+          d = "LEFT";
+        } else if (event.keyCode === 38 && d !== "DOWN") {
+          d = "UP";
+        } else if (event.keyCode === 39 && d !== "LEFT") {
+          d = "RIGHT";
+        } else if (event.keyCode === 40 && d !== "UP") {
+          d = "DOWN";
+        }
+}
+
+// Check collision function
+function collision(head, array) {
+for(let i=0; i<array.length; i++) {
+if(head.x == array[i].x && head.y == array[i].y){
+return true;
+}
+}
+return false;
+}
+
+// Draw everything to the canvas
+function draw() {
+
+ctx.clearRect(0,0,canvas.width, canvas.height);
+
+for(let i=0; i<snake.length; i++) {
+
+ctx.fillStyle = (i==0)? 'green' : 'white';
+ctx.fillRect(snake[i].x,snake[i].y,box,box);
+
+ctx.strokeStyle='red';
+ctx.strokeRect(snake[i].x,snake[i].y,box,box);
+}
+
+ctx.fillStyle='red';
+ctx.fillRect(food.x,food.y,box,box);
+
+// Old head position
+let snakeX=snake[0].x;
+let snakeY=snake[0].y;
+
+// Which direction?
+if(d=='LEFT') snakeX -= box;
+if(d=='UP') snakeY -= box;
+if(d=='RIGHT') snakeX += box;
+if(d=='DOWN') snakeY += box;
+
+// If the sanke eats the food
+if(snakeX == food.x && snakeY == food.y){
+food={
+x : Math.floor(Math.random()*((canvas.width/10)-1)+1)*box,
+y : Math.floor(Math.random()*((canvas.height/10)-1)+1)*box,
+}
+}else{
+// Remove tail
+snake.pop();
+}
+
+// New head position
+let newHead={
+x : snakeX,
+y : snakeY,
+}
+
+// Game over rules
+
+if(snakeX < -1 || 
+snakeX > canvas.width || 
+snakeY < -1 || 
+snakeY > canvas.height ||
+collision(newHead ,snake)){
+clearInterval(game);
+}
+
+// Add new head to start of array
+snake.unshift(newHead);
+}
+
+let game=setInterval(draw ,100);
+    </script>
+    
+</body>
+
+</html>
